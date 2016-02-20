@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -16,6 +17,8 @@ public class Robot extends IterativeRobot {
 	
     CANTalon bottom, top, left, right;
     Joystick joy;
+    
+    public static NetworkTable table;
     
     /**
      * This function is run when the robot is first started up and should be
@@ -33,12 +36,13 @@ public class Robot extends IterativeRobot {
         right = new CANTalon(5);
         
         joy = new Joystick(0);
+        
+        table = NetworkTable.getTable("5431");
     }
     
     public void autonomousInit() {
     	autoSelected = (String) chooser.getSelected();
 //		autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
-		System.out.println("Auto selected: " + autoSelected);
     }
 
     /**
