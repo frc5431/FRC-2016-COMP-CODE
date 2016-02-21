@@ -1,10 +1,7 @@
 
 package org.usfirst.frc.team5431.robot;
 
-import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,6 +14,8 @@ public class Robot extends IterativeRobot {
     
     public static NetworkTable table;
     
+    private static ThreadManager threadManager;
+    
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -28,6 +27,11 @@ public class Robot extends IterativeRobot {
         SmartDashboard.putData("Auto choices", chooser);
         
         table = NetworkTable.getTable("5431");
+        
+        threadManager = new ThreadManager();
+        threadManager.startVisionThread();
+        threadManager.start();
+        
     }
     
     public void autonomousInit() {
