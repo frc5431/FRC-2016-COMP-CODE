@@ -11,7 +11,7 @@ public class ThreadManager extends Thread{
 	private final Executor exe = Executors.newCachedThreadPool();
 	
 	public final VisionThread vision;
-	private boolean visionOn = false;
+	private boolean visionOn = false, driveOn = false;
 	private final DriveThread drive;
 	
 	public ThreadManager() {
@@ -29,21 +29,30 @@ public class ThreadManager extends Thread{
 		drive.drive(left, right);
 	}
 	
+	public void driveHandle() {
+		if(driveOn) {
+			
+		}
+	}
+	
 	public void startVisionThread() {
 		visionOn = true;
 		exe.execute(vision);
 	}
 	
+	public void startDriveThread() {
+		driveOn = true;
+		exe.execute(drive);
+	}
+	
 	@Override
 	public void run() {
 		visionOn=true;
-		exe.execute(vision);
-		exe.execute(drive);
 		while(true) {
 			try {
 				this.visionHandle();
-				
-				Thread.sleep(100);
+				this.driveHandle();
+				Thread.sleep(600);
 			} catch (Throwable error) {error.printStackTrace();}
 		}
 	}

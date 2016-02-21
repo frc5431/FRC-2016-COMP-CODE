@@ -48,12 +48,6 @@ public class DriveBase {
 		this.frontleft.enable();
 		this.rearright.enable();
 		this.frontright.enable();
-
-		/*
-		 * if (Robot.launch==Robot.LaunchType.BLUE) {
-		  frontright.setInverted(true); frontleft.setInverted(true);
-		 * rearleft.setInverted(true); }
-		 */
 		
 		this.frontleft.setInverted(true);
 		this.rearleft.setInverted(true);
@@ -85,9 +79,6 @@ public class DriveBase {
 	 *            center, and 1 is the highest.
 	 */
 	public void drive(double left, double right) {
-		//if (Robot.launch==Robot.LaunchType.BLUE) {
-			//drive.tankDrive(left * 0.7, right * 0.7);
-		//} else
 			Robot.table.putNumber("LEFT-DRIVE", left);
 			Robot.table.putNumber("RIGHT-DRIVE", right);
 			drive.tankDrive(right, left);
@@ -187,6 +178,10 @@ public class DriveBase {
 	 */
 	private double exp(double Speed) {
 		return Speed/1.1;//(0.46 * Math.pow(Speed, 3)) + (0.5 * Speed);
+	}
+	
+	public boolean checkState() {
+		return true;
 	}
 
 	/**

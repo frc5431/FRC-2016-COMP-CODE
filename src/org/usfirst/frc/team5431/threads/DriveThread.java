@@ -1,9 +1,5 @@
 package org.usfirst.frc.team5431.threads;
 
-import java.io.File;
-
-import javax.swing.ImageIcon;
-
 import org.usfirst.frc.team5431.components.DriveBase;
 import org.usfirst.frc.team5431.robot.Robot;
 
