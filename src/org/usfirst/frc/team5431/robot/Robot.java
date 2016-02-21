@@ -14,9 +14,6 @@ public class Robot extends IterativeRobot {
     final String customAuto = "My Auto";
     String autoSelected;
     SendableChooser chooser;
-	
-    CANTalon bottom, top, left, right;
-    Joystick joy;
     
     public static NetworkTable table;
     
@@ -29,13 +26,6 @@ public class Robot extends IterativeRobot {
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto choices", chooser);
-        
-        bottom = new CANTalon(7);
-        top = new CANTalon(6);
-        left = new CANTalon(8);
-        right = new CANTalon(5);
-        
-        joy = new Joystick(0);
         
         table = NetworkTable.getTable("5431");
     }
@@ -59,26 +49,14 @@ public class Robot extends IterativeRobot {
             break;
     	}
     }
+    
+    
 
     /**
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
     	
-    	if(joy.getRawButton(1))
-    	{
-    		left.set(-0.43);
-    		right.set(-0.43);
-    		top.set(-1);
-    		bottom.set(1);
-    	}
-    	else
-    	{
-        	left.set(-0.3);
-        	right.set(-0.3);
-    		top.set(0);
-    		bottom.set(0);
-    	}
     }
     
     /**
