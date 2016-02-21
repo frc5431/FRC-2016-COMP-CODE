@@ -19,6 +19,9 @@ public class Robot extends IterativeRobot {
     
     private static ThreadManager threadManager;
     
+    //java -jar C:\Users\USERNAME\AppData\Local\GRIP\app\core-1.2.0-all.jar [MY_PROJECT.GRIP]
+
+    
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
