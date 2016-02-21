@@ -1,115 +1,139 @@
 package org.usfirst.frc.team5431.threads;
 
-import org.usfirst.frc.team5431.libs.Vision;
+import org.usfirst.frc.team5431.staticlibs.Grip;
+import org.usfirst.frc.team5431.staticlibs.VisionMath;
 
 public class VisionThread extends Thread {
+	
+	public VisionMath math;
+	public Grip grip;
+	public volatile double screenHalf = 120, offVal = 0;
+	
+	private static volatile double[]
+			areas = {0},
+			distances = {0},
+			fromCenters = {0},
+			holeSolids = {0};
+	
+	public static volatile double
+			area = 0,
+			distance = 0,
+			fromCenter = 0,
+			holeSolid = 0;
+			
+	public static volatile double[] manVals = {0, 0, 0};
+	
+	public static volatile double overspeed = 0.1;
+	
+	public VisionThread() {
+		math = new VisionMath();
+		grip = new Grip();
+	}
+	
+	private void updateVals() {
+		areas = grip.area();
+		distances = grip.distance(math);
+		fromCenters = grip.fromCenter(this.screenHalf, math);
+		holeSolids = grip.solidity();
+	}
+	
+	private void calcVals() {
+		int toShoot = math.chooseHole(areas, distances, holeSolids, fromCenters); //Chooses an object to shoot at(Method below)
+		//Robot.table.putNumber("HOLE-NUM", toShoot); //Display to dashboard what to shoot at
+		if(toShoot != 666) {//Don't shoot at nothing (THE DEVIL)
+			double tempCenter = grip.fromCenter(this.screenHalf, math)[toShoot]; //Temp center values
+			/*
+			//Display values to SmartDashboard!
+			Robot.table.putNumber("HOLE-AREA", areas[toShoot]);
+			Robot.table.putNumber("HOLE-DISTANCE", distances[toShoot]);
+			Robot.table.putNumber("HOLE-CENTER", tempCenter);
+			Robot.table.putNumber("HOLE-SOLITIY", holeSolids[toShoot]);
+			*/
+			
+			manVals[1] = (math.withIn(distances[toShoot], VisionMath.minDistance, VisionMath.maxDistance)) ? 0 : 
+					(distances[toShoot] < VisionMath.minDistance) ? 1 : 2; //Get which direction to drive
+					
+			manVals[0] = (math.withIn(tempCenter, VisionMath.leftTrig, VisionMath.rightTrig)) ? 0 :
+					(tempCenter < VisionMath.leftTrig) ? 1 : 2; //Amount to turn the turrent
+			
+			//double readyVal = math.SpeedCalc(distances[toShoot]);
+			
+			//Robot.table.putNumber("AUTO-AIM-SPEED", readyVal);
+			
+			/*
+			if((forback == 0) && (lefight == 0)) {
+				//Robot.table.putString("FIRE", "F");
+				//Robot.table.putString("PULL", "F");	
+				//Robot.led.wholeStripRGB(255, 0, 0);
+				manVals[0] = readyVal + overspeed;
+				manVals[1] = 0;
+				manVals[2] = 0;
+			} else {
+				String pulling = "";
+				String firing = "";
+				if (forback == 1) {
+					pulling = "DB";
+					//Robot.led.backwards(0, 0, 255, 60);
+				}else if(forback == 2) {
+					pulling = "DF";
+					//Robot.led.forwards(0, 255, 255, 60);
+				}
+				
+				if(lefight == 1) {
+					firing = "TL";
+					//Robot.led.turnLeft(255, 135, 0, 65);
+				} else if(lefight == 2) {
+					firing = "TR";
+					//Robot.led.turnRight(255, 135, 0, 65);
+				}
+				//Robot.table.putString("PULL", pulling);
+				//Robot.table.putString("FIRE", firing);
+				
+				manVals[0] = offVal;
+				manVals[1] = lefight;
+				manVals[2] = forback;
+				
+			}*/
+		} else {
+			///Robot.table.putString("FIRE", "NA");
+			//Robot.table.putString("PULL", "NA");
+			//Robot.led.wholeStripRGB(120, 140, 120);
+			manVals[0] = 5;
+			manVals[1] = 5;
+		}
+	}
+	
+	public double getSpeed() {
+		return math.SpeedCalc(distance);
+	}
+	
+	public double getDistance() {
+		return distance;
+	}
+	
+	public double getFromCenter() {
+		return fromCenter;
+	}
+	
+	public double getLeftRight() {
+		return manVals[0];
+	}
+	
+	public double getForwardBackward() {
+		return manVals[1]; 
+	}
 	
 	@Override
 	public void run() {
 		
-	}
-	
-}
-
-/**
- * Private inline class for {@link Vision} with various helper methods.
- * @author AcademyHS Robotics Team 5431
- *
- */
-class Maths {
-	
-	//Choose hole options (Total should be 1.0)
-	private static final double 
-			areaNum = 0.2,
-			distNum = 0.2,
-			solidNum = 0.4,
-			fromNum = 0.2;
-	
-	//Distances and resolution values
-	public static final double 
-			screenHalf = 160,
-			minDistance = 75,
-			maxDistance = 110,
-			leftTrig = -6,
-			rightTrig = 5;
-			
-	/**
-	 * Calculates the distance of a location
-	 * <p>
-	 * <b>Make sure to pretest the values</b>
-	 * 
-	 * @param pixelsFromTop Number of pixels from the top
-	 * @return The distance from the hole
-	 * */
-	public double DistanceCalc(double pixelsFromTop) {
-		return (56.6624) * Math.pow(1.0073, pixelsFromTop); //return (33.8569 * Math.pow(1.007, pixelsFromTop)); //Make sure you pre test these values
-	}
-	
-	public double SpeedCalc(double distanceFromTower) {
-		return (3.4028) - (0.5551 * Math.log(distanceFromTower));
-	}
-	
-	/**
-	 * Checks the distance of a location from the center of the camera
-	 * @param half Center of the camera, in pixels
-	 * @param current Location to check
-	 * @return Distance from the center of the camera, in pixels. Negative values means it's to the left. 
-	 * */
-	public double fromCenter(double half, double current) {
-		return current - half;
-	}
-	
-	/**
-	 * Returns which hole to use based on various info
-	 * @param areas Array with the area of each hole, where each index refers to a hole (array[0]=hole 0)
-	 * @param distances Array with the distance of each hole from the camera, where each index refers to a hole (array[0]=hole 0)
-	 * @param solidity  Array with the solidity of each hole, where each index refers to a hole (array[0]=hole 0)
-	 * @param fromCenter Array with the distance of each hole from the center of the camera in pixels, where each index refers to a hole (array[0]=hole 0.) Negative means to the left.
-	* @return Hole ID based on the parameters. If 666 is returned, no hole was found.
-	 * */
-	public int chooseHole(double[] areas, double[] distances, double[] solidity, double[] fromCenter)
-    {	
-		int amount = areas.length;
+		while(true) {
+			try {
+				this.updateVals();
+				this.calcVals();
+				Thread.sleep(10);
+			} catch(Throwable dontquit) {dontquit.printStackTrace();}
+		}
 		
-    	try
-    	{
-    		double holes[] = {0}; //Don't mess
-    		double largest = 0; //Don't mess
-    		int current = 0; //Don't mess
-		
-    		//If any of the values are negative make sure that they are positive
-	    	for(int now = 0; now < amount; now++) {
-	    		areas[now] = Math.abs(areas[now]);
-	    		distances[now] = Math.abs(distances[now]);
-	    		solidity[now] = Math.abs(solidity[now]);
-	    		fromCenter[now] = Math.abs(fromCenter[now]);
-	    		
-	    		holes[now] = (((areas[now]/2000) * areaNum) + ((1 - (distances[now]/maxDistance)) * distNum)
-	    		+ ((solidity[now]/100) * solidNum) - ((fromCenter[now]/screenHalf) * fromNum))/4;
-	    		
-	    		if(holes[now] > largest) {
-	    			largest = holes[now];
-	    			current = now;
-	    		}
-	    		
-	    	}
-	    	return current;
-    	}
-    	catch(Exception ignored) {
-    		return 666; //Return 666 which means none found
-    	}
-    }
-	
-	//See if number is within two other numbers
-	/**
-	 * Checks to see if a number is within two other numbers
-	 * @param num Number to compare
-	 * @param lower Lower bound
-	 * @param upper Upper bound
-	 * @return Whether num is within lower and upper bounds.
-	 * */
-    public boolean withIn(double num, double lower, double upper) {
-    	return ((num >= lower) && (num <= upper));
-    }
+	}
 	
 }
