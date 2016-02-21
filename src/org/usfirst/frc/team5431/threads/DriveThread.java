@@ -4,23 +4,28 @@ import java.io.File;
 
 import javax.swing.ImageIcon;
 
-public class DriveThread extends TemplateThread{
+import org.usfirst.frc.team5431.components.DriveBase;
+import org.usfirst.frc.team5431.robot.Robot;
 
-	public DriveThread(double ticks) {
-		super(ticks);
-		// TODO Auto-generated constructor stub
+public class DriveThread extends TemplateThread{
+	private final DriveBase drive;
+	
+	public DriveThread() {
+		super(200);
+		drive = new DriveBase();
 	}
 
 	@Override
 	public void action() {
-		// TODO Auto-generated method stub
-		
+		drive.checkInput(Robot.oi);
+	}
+	
+	public void drive(double left, double right){
+		drive.drive(left, right);
 	}
 
 	@Override
-	public void init() {
-		// TODO Auto-generated method stub
-		
+	public void init() {		
 	}
 
 	
