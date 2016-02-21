@@ -16,7 +16,13 @@ public class VisionMath {
 			maxDistance = 110,
 			leftTrig = -6,
 			rightTrig = 5;
+	
+	private static final double
+			maxArea = 200,
+			maxSolidity = 100;
 			
+	public static volatile double override = 0.0;
+	
 	/**
 	 * Calculates the distance of a location
 	 * <p>
@@ -30,7 +36,7 @@ public class VisionMath {
 	}
 	
 	public double SpeedCalc(double distanceFromTower) {
-		return (3.4028) - (0.5551 * Math.log(distanceFromTower));
+		return ((3.4028) - (0.5551 * Math.log(distanceFromTower))) + override;
 	}
 	
 	/**
@@ -68,8 +74,8 @@ public class VisionMath {
 	    		solidity[now] = Math.abs(solidity[now]);
 	    		fromCenter[now] = Math.abs(fromCenter[now]);
 	    		
-	    		holes[now] = (((areas[now]/2000) * areaNum) + ((1 - (distances[now]/maxDistance)) * distNum)
-	    		+ ((solidity[now]/100) * solidNum) - ((fromCenter[now]/screenHalf) * fromNum))/4;
+	    		holes[now] = (((areas[now]/maxArea) * areaNum) + ((1 - (distances[now]/maxDistance)) * distNum)
+	    		+ ((solidity[now]/maxSolidity) * solidNum) - ((fromCenter[now]/screenHalf) * fromNum))/4;
 	    		
 	    		if(holes[now] > largest) {
 	    			largest = holes[now];
