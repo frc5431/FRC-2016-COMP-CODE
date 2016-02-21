@@ -19,6 +19,10 @@ public class DriveThread extends TemplateThread{
 	public void drive(double left, double right){
 		drive.drive(left, right);
 	}
+	
+	public boolean checkDrive() {
+		return drive.checkState();
+	}
 
 	@Override
 	public void init() {		
