@@ -1,14 +1,22 @@
 package org.usfirst.frc.team5431.robot;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import org.usfirst.frc.team5431.threads.DriveThread;
 import org.usfirst.frc.team5431.threads.VisionThread;
 
 public class ThreadManager extends Thread{
 	
-	public VisionThread vision;
+	private final Executor exe = Executors.newCachedThreadPool();
+	
+	public final VisionThread vision;
 	private boolean visionOn = false;
+	private final DriveThread drive;
 	
 	public ThreadManager() {
 		vision = new VisionThread();
+		drive = new DriveThread();
 	}
 	
 	private void visionHandle() {
@@ -17,13 +25,20 @@ public class ThreadManager extends Thread{
 		}
 	}
 	
+	public void drive(double left, double right){
+		drive.drive(left, right);
+	}
+	
 	public void startVisionThread() {
 		visionOn = true;
-		vision.start();
+		exe.execute(vision);
 	}
 	
 	@Override
 	public void run() {
+		visionOn=true;
+		exe.execute(vision);
+		exe.execute(drive);
 		while(true) {
 			try {
 				this.visionHandle();
