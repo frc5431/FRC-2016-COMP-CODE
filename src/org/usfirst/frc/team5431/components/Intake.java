@@ -19,13 +19,14 @@ import edu.wpi.first.wpilibj.DigitalInput;
  *
  */
 public class Intake {
-	private final CANTalon top,bot;
-	//true because it is inverted at the start. it won't actually start running
+	private final CANTalon top, bot;
+	// true because it is inverted at the start. it won't actually start running
 	private boolean running = true;
 	private boolean limitState = false;
 	private static DigitalInput boulderLimit;
 	private int pastbutton = 0;
 	private double motorspeed = 0;
+
 	/**
 	 * Default constructor for {@code TurretBase}. Binds the
 	 * {@linkplain CANTalon top motor} to {@value MotorMap#INTAKE} and the
@@ -34,23 +35,23 @@ public class Intake {
 	public Intake() {
 		this.top = new CANTalon(MotorMap.INTAKE);
 		this.bot = new CANTalon(MotorMap.UNUSED);
-		
+
 		this.bot.enable();
 		this.top.enable();
-		//top.setInverted(true);
-		//bot.setInverted(true);
+		// top.setInverted(true);
+		// bot.setInverted(true);
 
 		this.top.clearStickyFaults();
 		this.bot.clearStickyFaults();
-		
-		//this.top.setInverted(true);
-		
+
+		// this.top.setInverted(true);
+
 		this.top.enableBrakeMode(true);
 		this.bot.enableBrakeMode(true);
-		
+
 		boulderLimit = new DigitalInput(SensorMap.INTAKE_LIMIT);
 		Robot.table.putNumber("intake max", MotorMap.DEFAULT_INTAKE_SPEED);
-		//rightLimit = new DigitalInput(8);
+		// rightLimit = new DigitalInput(8);
 	}
 
 	/**
@@ -97,22 +98,22 @@ public class Intake {
 	}
 
 	/**
-	 * Takes an {@link OI} and changes the speed values based on the
-	 * input. Also intakes if it is toggled.
+	 * Takes an {@link OI} and changes the speed values based on the input. Also
+	 * intakes if it is toggled.
 	 * 
 	 * @param map
 	 */
 	public void checkInput(OI map) {
-		//this is the code for the toggle
-		limitState = (!boulderLimit.get()); //|| !rightLimit.get()); //Reverses boulderLimit
-		
-		Robot.table.putBoolean("boulder", limitState);
-		if(limitState && !map.isIntaking()) {
+		// this is the code for the toggle
+		limitState = (!boulderLimit.get()); // || !rightLimit.get()); //Reverses
+											// boulderLimit
+
+		if (limitState && !map.isIntaking()) {
 			setMotorSpeed(0);
-		} else if(limitState && map.isIntaking()) {
+		} else if (limitState && map.isIntaking()) {
 			setMotorSpeed(Robot.table.getNumber("intake max", MotorMap.DEFAULT_INTAKE_SPEED));
 		}
-		
+
 		if ((map.isIntaking() ? 0 : 1) > pastbutton) {
 			if (running) {
 				setMotorSpeed(0);
@@ -121,22 +122,22 @@ public class Intake {
 			}
 		}
 		pastbutton = map.isIntaking() ? 0 : 1;
-		if(map.isIntakingBackwards() && !running){
+		if (map.isIntakingBackwards() && !running) {
 			setMotorSpeed(-Robot.table.getNumber("intake max", MotorMap.DEFAULT_INTAKE_SPEED));
-			
+
 		}
 		intake();
-		
-		//toggle gun
-//		if ((map.isIntaking() ? 0 : 1) > pastbutton) {
-//			if (running) {
-//				setMotorSpeed(0);
-//			} else if(!boulderLimit.get()) {
-//				setMotorSpeed(speed);
-//			}
-//			intake();
-//		}
-//		pastbutton = map.isIntaking() ? 0 : 1;
+
+		// toggle gun
+		// if ((map.isIntaking() ? 0 : 1) > pastbutton) {
+		// if (running) {
+		// setMotorSpeed(0);
+		// } else if(!boulderLimit.get()) {
+		// setMotorSpeed(speed);
+		// }
+		// intake();
+		// }
+		// pastbutton = map.isIntaking() ? 0 : 1;
 	}
 
 	/**
@@ -147,17 +148,12 @@ public class Intake {
 	 */
 	private void setMotorSpeed(double d) {
 		motorspeed = d;
-		running= d!=0;
+		running = d != 0;
 		Robot.table.putBoolean("intake", running);
+		Robot.table.putBoolean("INTAKE-REVERSED", d < 0);
 	}
 
-}
-
-
-class GetLimit extends Thread {
-	
-	@Override
-	public void run() {
-		//Intake.
+	public void update() {
+		Robot.table.putBoolean("boulder", limitState);
 	}
 }

@@ -31,7 +31,6 @@ public class TurretBase {
 	private boolean running = true;
 	private int pastbutton = 0;
 	private double  motorspeed = 0;
-	public static volatile double toSpeed = 0.5;
 
 	/**
 	 * Default constructor for {@code TurretBase}. Binds the
@@ -51,8 +50,6 @@ public class TurretBase {
 		this.Right.clearStickyFaults();
 		
 		Robot.table.putNumber("turret max", MotorMap.DEFAULT_FLYWHEEL_SPEED);
-		new updateThread().start();
-
 	}
 
 	/**
@@ -127,20 +124,5 @@ public class TurretBase {
 	public void setMotorSpeed(double d) {
 		motorspeed = d;
 		running = d > 0;
-	}
-}
-
-class updateThread extends Thread {
-	
-	public void run() {
-		while(true) {
-			TurretBase.toSpeed = SmartDashboard.getNumber("TURRET SPEED", MotorMap.DEFAULT_FLYWHEEL_SPEED);
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 	}
 }
