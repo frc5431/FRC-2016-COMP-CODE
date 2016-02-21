@@ -14,7 +14,6 @@ public class ThreadManager extends Thread{
 	private void visionHandle() {
 		if(visionOn) {
 			vision.checkAccess();
-			//vision.
 		}
 	}
 	
