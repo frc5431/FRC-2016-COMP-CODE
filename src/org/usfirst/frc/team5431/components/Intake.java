@@ -34,7 +34,7 @@ public class Intake {
 	 */
 	public Intake() {
 		this.top = new CANTalon(MotorMap.INTAKE);
-		this.bot = new CANTalon(MotorMap.UNUSED);
+		this.bot = new CANTalon(MotorMap.CLIMBER);
 
 		this.bot.enable();
 		this.top.enable();

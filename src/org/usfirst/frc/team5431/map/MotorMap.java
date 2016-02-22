@@ -43,7 +43,7 @@ public final class MotorMap {
 	 * 
 	 * @see Robot
 	 **/
-	public static final int UNUSED;
+	public static final int CLIMBER;
 	/**
 	 * Channel ID for the front right wheel on the drive base, which is
 	 * {@value #FRONT_RIGHT}
@@ -74,13 +74,13 @@ public final class MotorMap {
 	public static final int REAR_LEFT;
 
 	static {
-		REAR_LEFT = 6;
-		REAR_RIGHT = 9;
-		FRONT_LEFT = 8;
+		REAR_LEFT = 3;
+		REAR_RIGHT = 6;//unconfirmed
+		FRONT_LEFT = 4;
 		FRONT_RIGHT = 7;
-		UNUSED = 4;
-		INTAKE = 3;
-		RIGHT_FLY = 2;
-		LEFT_FLY = 5;
+		CLIMBER = 9;
+		INTAKE = 5;
+		RIGHT_FLY = 8;
+		LEFT_FLY = 2;
 	}
 }
