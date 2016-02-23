@@ -14,18 +14,28 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends IterativeRobot {
 	
 	public enum AutoTask {
-		AutoShootLowbar, AutoShootCenter, AutoShootMoat, BarelyForward, StandStill
+		AutoShootLowbar, 
+		AutoShootCenter, 
+		AutoShootMoat, 
+		BarelyForward, 
+		StandStill
 	};
-	SendableChooser auton_select;
-    SendableChooser chooser;
+
+    SendableChooser 
+    			chooser, 
+    			auton_select;
     public static volatile OI oi;
     public static volatile NetworkTable table;
-    private static ThreadManager threadManager;
-    public static EncoderBase encoder;
-    //private static CameraServer camera;
-    public volatile boolean runOnce = false;
-	public static volatile boolean connection = false;
+    private static volatile ThreadManager threadManager; 
+    public static volatile EncoderBase encoder;
 	public static volatile AutoTask currentAuto;
+	
+	public static volatile boolean 
+			connection = false, 
+			runOnce = false;
+	
+	public static volatile double[] 
+			flyRPM = {0, 0};
 
     public void robotInit() {
     	/* To run headless grip
@@ -48,25 +58,21 @@ public class Robot extends IterativeRobot {
 		auton_select.addObject("Barely Forward", AutoTask.BarelyForward);
 		SmartDashboard.putData("Auto choices", auton_select);
         
+		this.startThreads();
+	     	
+        runOnce = true;
+    }
+    
+    private void startThreads() {
         threadManager = new ThreadManager();
-        threadManager.startVisionThread();
+        threadManager.setDaemon(true);
+        threadManager.setName("Thread-Manager");
+        threadManager.startVisionThread(); 
         threadManager.startDriveThread();
         threadManager.startIntakeThread();
         threadManager.startTurretThread();
         threadManager.startDashboardThread();
         threadManager.start();
-        
-        /* USB CAMERA NOT CURRENTLY USED
-         * @TODO ready camera
-        try {
-	        camera = CameraServer.getInstance();
-	     	camera.setQuality(10); //20% quality
-	     	camera.setSize(2);
-	     	camera.startAutomaticCapture("cam1");
-        } catch(Throwable error) {table.putString("ERROR", "USBCamera not found!");};
-	     */	
-	     	
-        runOnce = true;
     }
     
     public void autonomousInit() {
@@ -90,11 +96,12 @@ public class Robot extends IterativeRobot {
     		threadManager.checkAccess();
     		if(!threadManager.isAlive()) {
     			table.putString("ERROR", "ThreadManager is DEAD!!! Trying to revive it");
-    			threadManager.start();
+    			this.startThreads();
     		}
     		Timer.delay(1);
     	} catch(Throwable threadingError) {
     		table.putString("ERROR", "The threading process has crashed in some way!!!");
+    		threadingError.printStackTrace();
     	}
     }
     

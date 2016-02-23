@@ -52,10 +52,7 @@ public class DriveBase {
 		this.frontleft.enable();
 		this.rearright.enable();
 		this.frontright.enable();
-
-		this.frontleft.setInverted(true);
-		this.rearleft.setInverted(true);
-		this.frontright.setInverted(true);
+		
 		this.rearright.setInverted(true);
 
 		this.rearleft.clearStickyFaults();
@@ -83,34 +80,9 @@ public class DriveBase {
 	 *            center, and 1 is the highest.
 	 */
 	public void drive(double left, double right) {
-		if (joshdrive>0) {
-			double finalright = right;
-			double finalleft = left;
-			
-			if(left>=-0.1&&left<=0.1){
-				finalleft=0;
-			}else if ((left>0.1&&left<=0.7)||(left<-0.1&&left>=-0.7)){
-				finalleft=0.5;
-			}else if ((left>0.7)||(left<-0.7)){
-				finalleft=1;
-			}
-			
-			if(right>=-0.1&&right<=0.1){
-				finalright=0;
-			}else if ((right>0.1&&right<=0.7)||(right<-0.1&&right>=-0.7)){
-				finalright=0.5;
-			}else if ((right>0.7)||(right<-0.7)){
-				finalright=1;
-			}
-			
-			Robot.table.putNumber("LEFT-DRIVE", finalleft);
-			Robot.table.putNumber("RIGHT-DRIVE", finalright);
-			drive.tankDrive(finalright, finalleft);
-		} else {
 			Robot.table.putNumber("LEFT-DRIVE", left);
 			Robot.table.putNumber("RIGHT-DRIVE", right);
-			drive.tankDrive(right, left);
-		}
+			drive.tankDrive(left, right);
 	}
 
 	public void driveForSeconds(double LeftSpeed, double RightSpeed, double seconds) {
@@ -126,6 +98,7 @@ public class DriveBase {
 	/**
 	 * Automagically drives straight
 	 */
+	@SuppressWarnings("deprecation")
 	public void auto_driveStraight(double distance, double speed, double curve, long timeout) { // Why
 		Robot.encoder.resetDrive();
 
@@ -146,8 +119,11 @@ public class DriveBase {
 			}
 		}
 		this.drive(0, 0);
+		killThread.stopKiller();
+		killThread.destroy();
 	}
 
+	@SuppressWarnings("deprecation")
 	public void auto_driveStraightNoCorrection(double distance, double speed, double curve, long timeout) { 
 		Robot.encoder.resetDrive();
 		
@@ -159,6 +135,8 @@ public class DriveBase {
 			this.drive(speed, speed);
 		}
 		this.drive(0, 0);
+		killThread.stopKiller();
+		killThread.destroy();
 	}
 
 	/**
@@ -244,7 +222,7 @@ public class DriveBase {
 	 * also allow smaller more precise movements
 	 */
 	private double exp(double Speed) {
-		return Speed / 1.1;// (0.46 * Math.pow(Speed, 3)) + (0.5 * Speed);
+		return (double) Math.pow(Speed, 1.8);
 	}
 
 	public boolean checkState() {

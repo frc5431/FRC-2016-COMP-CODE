@@ -6,7 +6,7 @@ import org.usfirst.frc.team5431.staticlibs.VisionMath;
 
 public class VisionThread extends Thread {
 	
-	public VisionMath math;
+	public volatile VisionMath math;
 	public Grip grip;
 	public volatile double screenHalf = 120, offVal = 0;
 	
@@ -38,7 +38,7 @@ public class VisionThread extends Thread {
 	
 	private void calcVals() {
 		int toShoot = math.chooseHole(areas, distances, holeSolids, fromCenters); //Chooses an object to shoot at(Method below)
-		//Robot.table.putNumber("HOLE-NUM", toShoot); //Display to dashboard what to shoot at
+		Robot.table.putNumber("HOLE-NUM", toShoot); //Display to dashboard what to shoot at
 		if(toShoot != 666) {//Don't shoot at nothing (THE DEVIL)
 			double tempCenter = grip.fromCenter(this.screenHalf, math)[toShoot]; //Temp center values
 			//Display values to SmartDashboard!
@@ -119,7 +119,7 @@ public class VisionThread extends Thread {
 				this.updateVals();
 				this.calcVals();
 				Thread.sleep(10);
-			} catch(Throwable dontquit) {dontquit.printStackTrace(); Robot.table.putString("ERROR", "vision is dead");}
+			} catch(Throwable dontquit) {dontquit.printStackTrace(); Robot.table.putString("ERROR", "VISION IS DEAD, THE EARTH IS GOING TO EXPLODE!!!!");}
 		}
 		
 	}

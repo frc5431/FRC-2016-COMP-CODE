@@ -20,16 +20,27 @@ public class ThreadManager extends Thread{
 	private static DriveThread drive;
 	private static IntakeThread intake;
 	public static TurretThread turret;
-	private final DashboardThread dashboard;
-	private final AutonThread auton;
+	private static DashboardThread dashboard;
+	private static AutonThread auton;
 	
 	public ThreadManager() {
-		vision = new VisionThread();
-		drive = new DriveThread();
-		intake = new IntakeThread();
-		turret = new TurretThread();
-		dashboard = new DashboardThread();
-		auton = new AutonThread();
+		try {
+			vision = new VisionThread();
+			vision.setDaemon(true);
+			drive = new DriveThread();
+			drive.setDaemon(true);
+			intake = new IntakeThread();
+			drive.setDaemon(true);
+			turret = new TurretThread();
+			turret.setDaemon(true);
+			dashboard = new DashboardThread();
+			dashboard.setDaemon(true);
+			auton = new AutonThread();
+			auton.setDaemon(true);
+		} catch(Throwable error) {
+			Robot.table.putString("ERROR", "Error Starting the threads (In Thread manager)!");
+			error.printStackTrace();
+		}
 	}
 	
 	private void visionHandle() {
@@ -123,11 +134,12 @@ public class ThreadManager extends Thread{
 	@Override
 	public void run() {
 		visionOn=true;
+		
 		while(true) {
 			try {
 				this.visionHandle();
 				this.driveHandle();
-				Thread.sleep(600);
+				Thread.sleep(1000);
 			} catch (Throwable error) {error.printStackTrace();}
 		}
 	}

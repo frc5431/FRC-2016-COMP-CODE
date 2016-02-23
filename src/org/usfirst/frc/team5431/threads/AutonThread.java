@@ -126,6 +126,7 @@ public class AutonThread extends Thread {
 			}
 		} catch (Throwable e) {
 			Robot.table.putString("ERROR", "Error executing autonomous");
+			e.printStackTrace();
 		}
 	}
 	

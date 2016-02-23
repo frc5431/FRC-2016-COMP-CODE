@@ -1,7 +1,5 @@
 package org.usfirst.frc.team5431.staticlibs;
 
-import org.usfirst.frc.team5431.robot.Robot;
-
 public class VisionMath {
 	
 	//Choose hole options (Total should be 1.0)

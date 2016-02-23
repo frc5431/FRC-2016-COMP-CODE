@@ -1,6 +1,6 @@
 package org.usfirst.frc.team5431.threads;
 
-public abstract class TemplateThread implements Runnable{
+public abstract class TemplateThread extends Thread{
 	
 	public TemplateThread(double ticks){
 		tps=ticks;

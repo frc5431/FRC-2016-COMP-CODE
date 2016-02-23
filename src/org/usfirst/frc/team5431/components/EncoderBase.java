@@ -16,7 +16,7 @@ public class EncoderBase {
 	private Encoder Left, Right;
 	private Counter FlyLeft, FlyRight;
 	private static final double distancePerPulse = ((Math.PI * 10)/360.0);
-	private static final int samples = 7;
+	private static final int samples = 120;
 	
 	/**
 	 * Default constructor which handles {@link Encoder encoders} and {@link Counter counters}.

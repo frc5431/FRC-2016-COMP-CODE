@@ -32,6 +32,7 @@ public class TurretThread extends TemplateThread {
 	@Override
 	public void action() {
 		turret.checkInput(Robot.oi);
+		if(killThread.killed) this.stopShoot();
 	}
 
 	@Override

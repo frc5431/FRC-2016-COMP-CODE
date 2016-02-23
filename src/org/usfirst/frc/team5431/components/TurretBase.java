@@ -42,8 +42,6 @@ public class TurretBase {
 
 		this.Left.enable();
 		this.Right.enable();
-		Left.setInverted(true);
-		Right.setInverted(true);
 
 		this.Left.clearStickyFaults();
 		this.Right.clearStickyFaults();
@@ -51,6 +49,23 @@ public class TurretBase {
 		Robot.table.putNumber("turret max", MotorMap.DEFAULT_FLYWHEEL_SPEED);
 	}
 
+	private double[] flyAverage(double motorspeed) {
+		double left = Robot.encoder.leftFlyRPM();
+		double right = Robot.encoder.rightFlyRPM();
+		double curveSpeed = Math.abs(left - right) * 0.0003;
+		double[] motorSubs = {0, 0, 0};
+		
+		if(left <= right) {
+			motorSubs[0] = motorspeed + curveSpeed;
+			motorSubs[1] = motorspeed - curveSpeed;
+		} else if(left >= right) {
+			motorSubs[0] = motorspeed - curveSpeed;
+			motorSubs[1] = motorspeed + curveSpeed;
+		}
+		
+		return motorSubs;
+	}
+	
 	/**
 	 * Shoots with the current internal motor speed value.
 	 * 
@@ -58,8 +73,9 @@ public class TurretBase {
 	 */
 	public void shoot() {
 		Robot.table.putBoolean("turret", motorspeed>0);
-		this.Left.set(motorspeed);
-		this.Right.set(-motorspeed);
+		double flys[] = this.flyAverage(motorspeed);
+		this.Left.set(flys[0]);
+		this.Right.set(-flys[1]);
 	}
 
 	/**

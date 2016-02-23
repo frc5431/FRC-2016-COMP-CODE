@@ -14,6 +14,11 @@ public class KillerThread extends Thread {
 		killed = false;
 	}
 	
+	public void stopKiller() {
+		killed = false;
+		this.interrupt();
+	}
+	
 	public void setKillTime(long seconds) {
 		time = (seconds * 1000) - 30; //Remove thread startup time
 	}
@@ -39,6 +44,8 @@ public class KillerThread extends Thread {
 				} 
 			} while(RPM);
 		} catch (InterruptedException e) {
+			e.printStackTrace();
+			Robot.table.putString("ERROR", "Killer-Thread got interrupted");
 		} finally {
 			if(!RPM) killed = true;
 		}
