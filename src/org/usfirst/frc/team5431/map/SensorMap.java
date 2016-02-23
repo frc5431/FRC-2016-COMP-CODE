@@ -28,7 +28,7 @@ public class SensorMap {
 			LEFT_ENCODER_2=3;
 			FLY_WHEEL_RIGHT_COUNTER=4;
 			FLY_WHEEL_LEFT_COUNTER=5;
-			INTAKE_LIMIT=7;//hopefully 
+			INTAKE_LIMIT=6;//hopefully 
 	}
 
 }
