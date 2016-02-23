@@ -75,7 +75,7 @@ public final class MotorMap {
 
 	static {
 		REAR_LEFT = 3;
-		REAR_RIGHT = 6;//unconfirmed
+		REAR_RIGHT = 6;
 		FRONT_LEFT = 4;
 		FRONT_RIGHT = 7;
 		CLIMBER = 9;
