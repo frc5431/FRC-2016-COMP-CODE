@@ -70,7 +70,7 @@ public class Robot extends IterativeRobot {
     }
     
     public void autonomousInit() {
-    	connection=true;
+    	connection = true;
 		currentAuto = (AutoTask) auton_select.getSelected();    
 		SmartDashboard.putString("Auto Selected: ", currentAuto.toString());
 		threadManager.setAutonMode(currentAuto);
@@ -83,8 +83,7 @@ public class Robot extends IterativeRobot {
     }
     
 
-    public void autonomousPeriodic() {
-		Timer.delay(0.1);}
+    public void autonomousPeriodic() {Timer.delay(0.1);}
     
     public void teleopPeriodic() {
     	try {

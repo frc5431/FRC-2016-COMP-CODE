@@ -135,8 +135,8 @@ public class DriveBase {
 		killThread.setKillTime(timeout);
 		killThread.start();
 
-		while (((left = Robot.encoder.LeftDistance()) < distance)
-				&& ((right = Robot.encoder.RightDistance()) < distance)) {
+		while((((left = Robot.encoder.LeftDistance()) < distance)
+				&& ((right = Robot.encoder.RightDistance()) < distance)) && !killThread.getKilled()) {
 			if (left < (right - 0.01)) {
 				this.drive((speed + curve + .06), (speed - curve));
 			} else if (left > (right + 0.01)) {
@@ -155,7 +155,7 @@ public class DriveBase {
 		killThread.setKillTime(timeout);
 		killThread.start();
 		
-		while (((Robot.encoder.LeftDistance()) < distance) && ((Robot.encoder.RightDistance()) < distance)) {
+		while((((Robot.encoder.LeftDistance()) < distance) && ((Robot.encoder.RightDistance()) < distance)) && !killThread.getKilled()) {
 			this.drive(speed, speed);
 		}
 		this.drive(0, 0);
