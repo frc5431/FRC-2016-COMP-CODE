@@ -20,6 +20,22 @@ public class DriveThread extends TemplateThread{
 		drive.drive(left, right);
 	}
 	
+	public void driveForSeconds(double left, double right, double seconds){
+		drive.driveForSeconds(left, right, seconds);
+	}
+	
+	public void drive_straight(double distance, double speed, double curve, long timeout){
+		drive.auto_driveStraight(distance, speed, curve, timeout);
+	}
+	
+	public void drive_turn(double degrees, double speed, double curve){
+		drive.auto_driveTurn(degrees, speed, curve);
+	}
+	
+	public void drive_straight_no_correction(double distance, double speed, double curve, long timeout){
+		drive.auto_driveStraightNoCorrection(distance, speed, curve, timeout);
+	}
+	
 	public boolean checkDrive() {
 		return drive.checkState();
 	}

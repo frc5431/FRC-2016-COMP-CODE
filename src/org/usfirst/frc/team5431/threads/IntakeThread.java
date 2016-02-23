@@ -10,6 +10,16 @@ public class IntakeThread extends TemplateThread{
 		super(200);
 		intake = new Intake();
 	}
+	
+	public void startIntake() {
+		intake.intakeMax();
+		intake.intake();
+	}
+	
+	public void stopIntake() {
+		intake.stopIntake();
+		intake.intake();
+	}
 
 	@Override
 	public void action() {
