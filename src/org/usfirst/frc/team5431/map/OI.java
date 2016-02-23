@@ -16,7 +16,7 @@ public final class OI {
 	 */
 	public static final int 
 			JOYSTICK_DRIVE = 0, 
-			JOYSTICK_GUN = 0, 
+			JOYSTICK_GUN = 1, 
 			DRIVE_LEFT_Y = 1, 
 			DRIVE_RIGHT_Y = 5,
 			GUN_TRIGGER = 1, 
@@ -24,7 +24,7 @@ public final class OI {
 			DRIVE_INTAKE_BACKWARDS=3,
 			DRIVE_SOL_IN = 2,
 			DRIVE_SOL_OUT = 3,
-			AUTO_GUN_TRIGGER = 6;
+			AUTO_GUN_TRIGGER = 1;
 	
 	private final Joystick drive, gun;
 	private final JoystickButton intake, shoot, solIn, solOut, intakeback, autoShoot;
@@ -37,7 +37,7 @@ public final class OI {
 		drive = new Joystick(JOYSTICK_DRIVE);
 		gun = new Joystick(JOYSTICK_GUN);
 		
-		shoot = new JoystickButton(gun, GUN_TRIGGER);
+		shoot = new JoystickButton(drive, GUN_TRIGGER);
 		intake = new JoystickButton(drive, DRIVE_INTAKE);
 		intakeback = new JoystickButton(drive,DRIVE_INTAKE_BACKWARDS);
 		autoShoot = new JoystickButton(gun, AUTO_GUN_TRIGGER);
@@ -62,6 +62,10 @@ public final class OI {
 	 **/
 	public Joystick getGunController() {
 		return gun;
+	}
+	
+	public double getGunThrottle() {
+		return gun.getThrottle();
 	}
 
 	/**

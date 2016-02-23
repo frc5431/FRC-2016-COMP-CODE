@@ -11,7 +11,8 @@ public class DashboardThread implements Runnable{
 			try {
 				Robot.table.putBoolean("connection",true);
 				Robot.table.putBoolean("ENABLED", Robot.connection);
-				VisionMath.override = Robot.table.getNumber("OVERDRIVE", 0.0);
+				VisionMath.override = (Robot.oi.getGunThrottle()/2);
+				Robot.table.putNumber("OVERDRIVE", VisionMath.override);
 				Robot.table.putNumber("DISTANCE-DRIVE", (Robot.encoder.LeftDistance() + Robot.encoder.RightDistance())/2);
 				Thread.sleep(50);
 			} catch (InterruptedException e) {}
