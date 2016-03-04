@@ -2,11 +2,12 @@ package org.usfirst.frc.team5431.components;
 
 import org.usfirst.frc.team5431.map.OI;
 import org.usfirst.frc.team5431.robot.Robot;
+import org.usfirst.frc.team5431.threads.KillerThread;
 import org.usfirst.frc.team5431.map.MotorMap;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * Class that handles tank drive.
@@ -16,11 +17,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class DriveBase {
 
-	private CANTalon rearleft, frontleft, rearright, frontright;
+	private static CANTalon rearleft, frontleft, rearright, frontright;
+	private static RobotDrive drive;
+	private static KillerThread killThread;
 
-	private RobotDrive drive;
+	private static final int robotWidth = 23 + (1 / 8);
 	
-	private static int robotWidth = 23 + (1/8);
+	private static double left = 0;
+	private static double right = 0;
+	private static double leftDistance = 0;
+	private static double rightDistance = 0;
+	private static int leftNegate = 1;
+	private static int rightNegate = 1;
+	
 
 	/**
 	 * Default constructor
@@ -59,12 +68,24 @@ public class DriveBase {
 		this.rearright.clearStickyFaults();
 		this.frontright.clearStickyFaults();
 
-		this.rearleft.enableBrakeMode(brakeMode);
-		this.frontleft.enableBrakeMode(brakeMode);
-		this.frontright.enableBrakeMode(brakeMode);
-		this.rearright.enableBrakeMode(brakeMode);
+		rearright.setInverted(true);
 
-		this.drive = new RobotDrive(this.frontleft, this.rearleft, this.frontright, this.rearright);
+		rearleft.clearStickyFaults();
+		frontleft.clearStickyFaults();
+		rearright.clearStickyFaults();
+		frontright.clearStickyFaults();
+
+		rearleft.enableBrakeMode(brakeMode);
+		frontleft.enableBrakeMode(brakeMode);
+		frontright.enableBrakeMode(brakeMode);
+		rearright.enableBrakeMode(brakeMode);
+
+		drive = new RobotDrive(frontleft, rearleft, frontright, rearright);
+		
+		killThread = new KillerThread();
+		try {
+			killThread.wait();
+		} catch (InterruptedException e) {e.printStackTrace();}		
 	}
 
 	/**
@@ -84,102 +105,14 @@ public class DriveBase {
 			drive.tankDrive(left, right);
 	}
 
-//	/**
-//	 * Automagically drives straight
-//	 */
-//	public void auto_driveStraight(double distance, double speed, double curve) { //Why do you have curve? Liave, you need to document!
-//		Robot.encoder.resetDrive();
-//
-//		double left = 0;
-//		double right = 0;
-//		
-//		while (((left = Robot.encoder.LeftDistance()) < distance)
-//				&& ((right = Robot.encoder.RightDistance()) < distance)) {
-//			if (left < (right - 0.01)) {
-//				this.drive((speed + curve + .06), (speed - curve));
-//			} else if (left > (right + 0.01)) {
-//				this.drive((speed - curve), (speed + curve)+ .06);
-//			} else {
-//				this.drive((speed), (speed));
-//			}
-//		}
-//		this.drive(0, 0);
-//	}
-//	
-//	public void auto_driveStraightNoCorrection(double distance, double speed, double curve) { //Why do you have curve? Liave, you need to document!
-//		Robot.encoder.resetDrive();
-//
-//		double left = 0;
-//		double right = 0;
-//		
-//		while (((left = Robot.encoder.LeftDistance()) < distance)
-//				&& ((right = Robot.encoder.RightDistance()) < distance)) {
-//			this.drive(speed, speed);
-//		}
-//		this.drive(0, 0);
-//	}
-//	
-//	
-//	/**
-//	 * Encoder-based turning with input in degrees and speed.
-//	 * @param degrees 
-//	 * 					From 0 - 180 for left and 0 to -180 for right
-//	 * @param speed
-//	 * 					Speed that robot turns, from -1 to 1.
-//	 * @param curve
-//	 * 					How much to speed up a side if one side is going a pulse faster.
-//	 * 					Should be extremely small (adds to motor value for a side).
-//	 */
-//	public void auto_driveTurn(double degrees, double speed, double curve){
-//		Robot.encoder.resetDrive();
-//		double left = 0;
-//		double right = 0;
-//		double leftDistance = 0;
-//		double rightDistance = 0;
-//		int leftNegate = 1;
-//		int rightNegate = 1;
-//						 //We aren't doing straight in this function are we? How am I going to find distance from just degrees (which is 0). 
-//		if(degrees != 0){ //This is to make sure that even if build team programs, they won't kill themselves immediately.
-//			if(degrees < 0){
-//				leftDistance = ((1.0/2.0) * degrees) * robotWidth / (360.0);   //degrees negates left for us (why type more?)
-//				rightDistance = ((1.0/2.0) * -degrees) * robotWidth / (360.0); //Negative because right will need to be positive
-//				SmartDashboard.putString("turnLeft", "YES");
-//				leftNegate = -1;
-//			}
-//			else{
-//				leftDistance = ((1.0/2.0) * degrees) * robotWidth / (360.0);	//Negating because left needs to go backward.
-//				rightDistance = ((1.0/2.0) * degrees) * robotWidth / (360.0);
-//				SmartDashboard.putString("turnLeft", "NO");
-//				rightNegate = -1;
-//			}
-//			SmartDashboard.putNumber("Robot width", robotWidth);
-//			SmartDashboard.putNumber("leftTurnDistance", leftDistance);
-//			SmartDashboard.putNumber("rightTurnDistance", rightDistance);
-//			//Lets just do copy and paste here, shall we? You don't mind - right, David?
-//			while (((left = Robot.encoder.LeftDistance()) < leftDistance * leftNegate)
-//					&& ((right = Robot.encoder.RightDistance()) < rightDistance * rightNegate)) {
-//				if (left < (right - 0.01)) {
-//					this.drive(((speed + curve + .06) * leftNegate), (speed - curve) * rightNegate);
-//				} else if (left > (right + 0.01)) {
-//					this.drive((speed - curve) * leftNegate, ((speed + curve)+ .06)* rightNegate);
-//				} else {
-//					this.drive((speed) * leftNegate, (speed) * rightNegate);
-//				}
-//				SmartDashboard.putNumber("leftEncoderDistance", Robot.encoder.LeftDistance());
-//				SmartDashboard.putNumber("rightEncoderDistance", Robot.encoder.RightDistance());
-//			}
-//			this.drive(0, 0);
-//		}
-//		//else I would return something (we need to make a list of error codes and not have any void functions . . .)
-//	}
 	/*
 	 * Make the joystick inputs curved for a natural dead zone(No jumping) And
 	 * also allow smaller more precise movements
 	 */
 	private double exp(double Speed) {
-		return Speed/1.1;//(0.46 * Math.pow(Speed, 3)) + (0.5 * Speed);
+		return Speed;// (double) Math.pow(Speed, 1.8);
 	}
-	
+
 	public boolean checkState() {
 		return true;
 	}
@@ -192,6 +125,7 @@ public class DriveBase {
 	 */
 	public void checkInput(OI map) {
 		this.drive(-exp(map.getDriveLeftYAxis()), -exp(map.getDriveRightYAxis()));
+
 	}
 
 }

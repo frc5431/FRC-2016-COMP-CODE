@@ -37,7 +37,7 @@ public final class OI {
 		drive = new Joystick(JOYSTICK_DRIVE);
 		gun = new Joystick(JOYSTICK_GUN);
 		
-		shoot = new JoystickButton(gun, GUN_TRIGGER);
+		shoot = new JoystickButton(drive, GUN_TRIGGER);
 		intake = new JoystickButton(drive, DRIVE_INTAKE);
 		intakeback = new JoystickButton(drive,DRIVE_INTAKE_BACKWARDS);
 		autoShoot = new JoystickButton(gun, AUTO_GUN_TRIGGER);
@@ -62,6 +62,10 @@ public final class OI {
 	 **/
 	public Joystick getGunController() {
 		return gun;
+	}
+	
+	public double getGunThrottle() {
+		return gun.getRawAxis(2);
 	}
 
 	/**

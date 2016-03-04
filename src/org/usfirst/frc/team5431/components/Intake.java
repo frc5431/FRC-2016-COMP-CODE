@@ -35,17 +35,10 @@ public class Intake {
 	public Intake() {
 		this.top = new CANTalon(MotorMap.INTAKE);
 		this.bot = new CANTalon(MotorMap.CLIMBER);
-
 		this.bot.enable();
 		this.top.enable();
-		// top.setInverted(true);
-		// bot.setInverted(true);
-
 		this.top.clearStickyFaults();
 		this.bot.clearStickyFaults();
-
-		// this.top.setInverted(true);
-
 		this.top.enableBrakeMode(true);
 		this.bot.enableBrakeMode(true);
 
@@ -127,17 +120,6 @@ public class Intake {
 
 		}
 		intake();
-
-		// toggle gun
-		// if ((map.isIntaking() ? 0 : 1) > pastbutton) {
-		// if (running) {
-		// setMotorSpeed(0);
-		// } else if(!boulderLimit.get()) {
-		// setMotorSpeed(speed);
-		// }
-		// intake();
-		// }
-		// pastbutton = map.isIntaking() ? 0 : 1;
 	}
 
 	/**

@@ -13,10 +13,12 @@ import edu.wpi.first.wpilibj.Encoder;
  * */
 public class EncoderBase {
 
-	private Encoder Left, Right;
-	private Counter FlyLeft, FlyRight;
+	private final Encoder Left, Right;
+	private final Counter FlyLeft, FlyRight;
 	private static final double distancePerPulse = ((Math.PI * 10)/360.0);
-	private static final int samples = 7;
+	private static final int samples = 127;
+	private static double finalLeftSample = 0;
+	private static double finalRightSample = 0;
 	
 	/**
 	 * Default constructor which handles {@link Encoder encoders} and {@link Counter counters}.
@@ -30,6 +32,9 @@ public class EncoderBase {
 		
         this.Left.setDistancePerPulse(distancePerPulse);
         this.Right.setDistancePerPulse(distancePerPulse);
+        
+        this.FlyLeft.setDistancePerPulse(distancePerPulse);
+        this.FlyRight.setDistancePerPulse(distancePerPulse);
         
         this.Left.setSamplesToAverage(samples);
         this.Right.setSamplesToAverage(samples);
@@ -49,12 +54,29 @@ public class EncoderBase {
         this.FlyRight.reset();
 	}
 	
+	private double leftCount() {
+		return (60/(360 * this.FlyLeft.getPeriod()));
+	}
+	
+	private double rightCount() {
+		return (60/(360 * this.FlyRight.getPeriod()));
+	}
+	
+	
 	/**
 	 *Calculates the rotations per minute of the left flywheel.
 	 * @return The RPM of the left fly wheel according to the {@link Counter counter}
 	 */
 	public double leftFlyRPM() {
-		return  (60/(360 * this.FlyLeft.getPeriod()));
+		try {		
+			for(int a = 0; a < 5; a++) {
+				finalLeftSample += this.leftCount();
+					Thread.sleep(100);
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return (finalLeftSample/4);
 	}
 	
 	/**
@@ -62,7 +84,15 @@ public class EncoderBase {
 	 * @return The RPM of the right fly wheel according to the {@link Counter counter}
 	 */
 	public double rightFlyRPM() {
-		return  (60/(360 * this.FlyRight.getPeriod()));
+		try {		
+			for(int a = 0; a < 5; a++) {
+				finalRightSample += this.rightCount();
+					Thread.sleep(100);
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return (finalRightSample/4);
 	}
 
 	

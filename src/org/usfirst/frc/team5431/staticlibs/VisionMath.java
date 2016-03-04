@@ -12,10 +12,10 @@ public class VisionMath {
 	//Distances and resolution values
 	public static final double 
 			screenHalf = 160,
-			minDistance = 75,
-			maxDistance = 110,
-			leftTrig = -6,
-			rightTrig = 5;
+			minDistance = 107,
+			maxDistance = 180,
+			leftTrig = -60,
+			rightTrig = 60;
 	
 	private static final double
 			maxArea = 200,
@@ -32,11 +32,11 @@ public class VisionMath {
 	 * @return The distance from the hole
 	 * */
 	public double DistanceCalc(double pixelsFromTop) {
-		return (56.6624) * Math.pow(1.0073, pixelsFromTop); //return (33.8569 * Math.pow(1.007, pixelsFromTop)); //Make sure you pre test these values
+		return ((50.6234) * Math.pow(1.0072, pixelsFromTop)); //THE NEW BOT (SHOULD BE VERY CLOSE)
 	}
 	
 	public double SpeedCalc(double distanceFromTower) {
-		return ((3.4028) - (0.5551 * Math.log(distanceFromTower))) + override;
+		return Math.pow((10.9685 * distanceFromTower), -0.5264);//((3.4028) - (0.5551 * Math.log(distanceFromTower))) + override;
 	}
 	
 	/**
@@ -49,6 +49,9 @@ public class VisionMath {
 		return current - half;
 	}
 	
+	double largest = 0; //Don't mess
+	int current = 0; //Don't mess
+	
 	/**
 	 * Returns which hole to use based on various info
 	 * @param areas Array with the area of each hole, where each index refers to a hole (array[0]=hole 0)
@@ -59,13 +62,11 @@ public class VisionMath {
 	 * */
 	public int chooseHole(double[] areas, double[] distances, double[] solidity, double[] fromCenter)
     {	
-		int amount = areas.length;
+		final int amount = areas.length;
 		
     	try
     	{
-    		double holes[] = {0}; //Don't mess
-    		double largest = 0; //Don't mess
-    		int current = 0; //Don't mess
+    		final double holes[] = {0}; //Don't mess
 		
     		//If any of the values are negative make sure that they are positive
 	    	for(int now = 0; now < amount; now++) {

@@ -5,7 +5,6 @@ import org.usfirst.frc.team5431.robot.Robot;
 import org.usfirst.frc.team5431.map.MotorMap;
 
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Class that represents the shooter turret on the robot.
@@ -46,19 +45,40 @@ public class TurretBase {
 		//Left.setInverted(true);
 		Right.setInverted(true);
 
+
 		this.Left.clearStickyFaults();
 		this.Right.clearStickyFaults();
 		
 		Robot.table.putNumber("turret max", MotorMap.DEFAULT_FLYWHEEL_SPEED);
 	}
 
+	/*
+	private double[] flyAverage(double motorspeed) {
+		double left = Robot.encoder.leftFlyRPM();
+		double right = Robot.encoder.rightFlyRPM();
+		double curveSpeed = Math.abs(left - right) * 0.0003;
+		double[] motorSubs = {0, 0, 0};
+		
+		if(left <= right) {
+			motorSubs[0] = motorspeed + curveSpeed;
+			motorSubs[1] = motorspeed - curveSpeed;
+		} else if(left >= right) {
+			motorSubs[0] = motorspeed - curveSpeed;
+			motorSubs[1] = motorspeed + curveSpeed;
+		}
+		
+		return motorSubs;
+	}*/
+	
 	/**
 	 * Shoots with the current internal motor speed value.
 	 * 
 	 * @see #getSpeed(double)
 	 */
-	public void shoot() {
+	public void shoot(boolean balance) {
 		Robot.table.putBoolean("turret", motorspeed>0);
+		//double motors[] = {motorspeed, motorspeed};
+		//double flys[] = (balance) ? this.flyAverage(motorspeed) : motors;
 		this.Left.set(motorspeed);
 		this.Right.set(-motorspeed);
 	}
@@ -68,7 +88,7 @@ public class TurretBase {
 	 */
 	public void shootMax() {
 		setMotorSpeed(1);
-		shoot();
+		shoot(true);
 	}
 
 	/**
@@ -76,7 +96,7 @@ public class TurretBase {
 	 */
 	public void shootHalf() {
 		setMotorSpeed(0.5);
-		shoot();
+		shoot(true);
 	}
 
 	/**
@@ -84,7 +104,7 @@ public class TurretBase {
 	 */
 	public void stopShoot() {
 		setMotorSpeed(0);
-		shoot();
+		shoot(false);
 	}
 
 	/**
@@ -96,6 +116,8 @@ public class TurretBase {
 		return running;
 	}
 
+	boolean balance = false;
+	
 	/**
 	 * Takes an {@link OI} and changes the speed values based on the
 	 * input. Also shoots if it is toggled.
@@ -106,10 +128,12 @@ public class TurretBase {
 		if ((map.isShooting() ? 0 : 1) > pastbutton) {
 			if (running) {
 				setMotorSpeed(0);
+				balance = false;
 			} else {
 				setMotorSpeed(Robot.table.getNumber("turret max",MotorMap.DEFAULT_FLYWHEEL_SPEED));
+				balance = true;
 			}
-			shoot();
+			shoot(balance);
 		}
 		pastbutton = map.isShooting() ? 0 : 1;
 	}
