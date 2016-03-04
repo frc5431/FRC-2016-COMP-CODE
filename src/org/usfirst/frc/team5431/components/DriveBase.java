@@ -49,9 +49,9 @@ public class DriveBase {
 		this.rearright.enable();
 		this.frontright.enable();
 		
-		this.frontleft.setInverted(true);
-		this.rearleft.setInverted(true);
-		this.frontright.setInverted(true);
+		//this.frontleft.setInverted(true);
+		//this.rearleft.setInverted(true);
+		//this.frontright.setInverted(true);
 		this.rearright.setInverted(true);
 		
 		this.rearleft.clearStickyFaults();
@@ -81,7 +81,7 @@ public class DriveBase {
 	public void drive(double left, double right) {
 			Robot.table.putNumber("LEFT-DRIVE", left);
 			Robot.table.putNumber("RIGHT-DRIVE", right);
-			drive.tankDrive(right, left);
+			drive.tankDrive(left, right);
 	}
 
 //	/**

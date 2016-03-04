@@ -78,9 +78,9 @@ public final class MotorMap {
 		REAR_RIGHT = 6;
 		FRONT_LEFT = 4;
 		FRONT_RIGHT = 7;
-		CLIMBER = 9;
+		CLIMBER = 8;
 		INTAKE = 5;
-		RIGHT_FLY = 8;
+		RIGHT_FLY = 9;
 		LEFT_FLY = 2;
 	}
 }
