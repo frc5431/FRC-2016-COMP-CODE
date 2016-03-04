@@ -1,5 +1,7 @@
 package org.usfirst.frc.team5431.staticlibs;
 
+import org.usfirst.frc.team5431.robot.Robot;
+
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 public class Grip {
@@ -8,7 +10,12 @@ public class Grip {
 	private final double[] defaults = {0, 0, 0, 0};
 	
 	public Grip() {
-		grip = NetworkTable.getTable("GRIP/vision");
+		try {
+			grip = NetworkTable.getTable("GRIP/vision");
+		} catch(Throwable gripError) {
+			Robot.table.putString("ERROR", "Couldn't get grip table");
+			gripError.printStackTrace();
+		}
 	}
 	
 	/**

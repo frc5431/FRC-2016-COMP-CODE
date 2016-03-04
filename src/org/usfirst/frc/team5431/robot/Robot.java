@@ -1,10 +1,11 @@
 
 package org.usfirst.frc.team5431.robot;
 
+import org.usfirst.frc.team5431.components.DriveBase;
 import org.usfirst.frc.team5431.components.EncoderBase;
+import org.usfirst.frc.team5431.components.Intake;
+import org.usfirst.frc.team5431.components.TurretBase;
 import org.usfirst.frc.team5431.map.OI;
-
-//import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
@@ -13,7 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends IterativeRobot {
 	
-	public enum AutoTask {
+	public static enum AutoTask {
 		AutoShootLowbar, 
 		AutoShootCenter, 
 		AutoShootMoat, 
@@ -21,13 +22,16 @@ public class Robot extends IterativeRobot {
 		StandStill
 	};
 
-    SendableChooser 
+    static SendableChooser 
     			chooser, 
     			auton_select;
     public static volatile OI oi;
     public static volatile NetworkTable table;
-    private static volatile ThreadManager threadManager; 
+    public static volatile ThreadManager threadManager; 
     public static volatile EncoderBase encoder;
+    public static volatile Intake intake;
+    public static volatile DriveBase drive;
+    public static volatile TurretBase turret;
 	public static volatile AutoTask currentAuto;
 	
 	public static volatile boolean 
@@ -36,19 +40,14 @@ public class Robot extends IterativeRobot {
 	
 	public static volatile double[] 
 			flyRPM = {0, 0};
+	
 
     public void robotInit() {
-    	/* To run headless grip
-    	 *         try {
-            new ProcessBuilder("/home/lvuser/grip").inheritIO().start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    	 */
-        
-        table = NetworkTable.getTable("5431");
+    	
+    	table = NetworkTable.getTable("5431");
         oi = new OI();
         encoder = new EncoderBase();
+    	encoder.resetModules();
     	
 		auton_select = new SendableChooser();
 		auton_select.addObject("AutoShoot Lowbar", AutoTask.AutoShootLowbar);
@@ -57,60 +56,72 @@ public class Robot extends IterativeRobot {
 		auton_select.addObject("AutoShoot Moat", AutoTask.AutoShootMoat);
 		auton_select.addObject("Barely Forward", AutoTask.BarelyForward);
 		SmartDashboard.putData("Auto choices", auton_select);
-        
+		intake = new Intake();
+		turret = new TurretBase();
+		drive = new DriveBase();
 		this.startThreads();
 	     	
         runOnce = true;
     }
     
     private void startThreads() {
-        threadManager = new ThreadManager();
-        threadManager.setDaemon(true);
-        threadManager.setName("Thread-Manager");
-        threadManager.startVisionThread(); 
-        threadManager.startDriveThread();
-        threadManager.startIntakeThread();
-        threadManager.startTurretThread();
-        threadManager.startDashboardThread();
-        threadManager.start();
+    	try {
+	        threadManager = new ThreadManager();
+	        threadManager.startVisionThread(); 
+	        threadManager.startDashboardThread();
+    	} catch(Throwable error) {
+    		error.printStackTrace();
+    	}
     }
     
     public void autonomousInit() {
     	connection = true;
 		currentAuto = (AutoTask) auton_select.getSelected();    
 		SmartDashboard.putString("Auto Selected: ", currentAuto.toString());
-		threadManager.setAutonMode(currentAuto);
-		threadManager.startAutonThread();
+		try {
+			threadManager.setAutonMode(currentAuto);
+			threadManager.startAutonThread();
+		} catch(Throwable error) {
+			error.printStackTrace();
+		}
     }
 
     public void teleopInit(){
     	connection=true;
-    	threadManager.killAutonThread();
+    	try {
+    		threadManager.killAutonThread();
+    		threadManager.startAutoAimThread();
+    	} catch(Throwable error) {
+    		error.printStackTrace();
+    	}
     }
     
-
     public void autonomousPeriodic() {Timer.delay(0.1);}
     
     public void teleopPeriodic() {
     	try {
-    		threadManager.checkAccess();
-    		if(!threadManager.isAlive()) {
-    			table.putString("ERROR", "ThreadManager is DEAD!!! Trying to revive it");
-    			this.startThreads();
-    		}
-    		Timer.delay(1);
+    		intake.checkInput(oi);
+    		intake.update();
+    		turret.checkInput(oi);
+    		drive.checkInput(oi);
+    		Timer.delay(0.005);
     	} catch(Throwable threadingError) {
     		table.putString("ERROR", "The threading process has crashed in some way!!!");
+    		SmartDashboard.putString("ERROR", threadingError.getMessage());
     		threadingError.printStackTrace();
     	}
     }
     
 	public void disabledPeriodic() {
-		threadManager.killAutonThread();
+		try {
+			threadManager.killAutonThread();
+			threadManager.killAutoAimThread();
+		} catch(Throwable error) {
+			error.printStackTrace();
+		}
 		runOnce = true;
 		connection = false;
 	}
     
-    @Deprecated
     public void testPeriodic() {}
 }

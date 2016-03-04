@@ -17,14 +17,19 @@ import edu.wpi.first.wpilibj.Timer;
  */
 public class DriveBase {
 
-	private CANTalon rearleft, frontleft, rearright, frontright;
-	private RobotDrive drive;
-	private KillerThread killThread;
+	private static CANTalon rearleft, frontleft, rearright, frontright;
+	private static RobotDrive drive;
+	private static KillerThread killThread;
 
-	private int joshdrive=0;
-	private int pastjoshdrive=0;
-
-	private static int robotWidth = 23 + (1 / 8);
+	private static final int robotWidth = 23 + (1 / 8);
+	
+	private static double left = 0;
+	private static double right = 0;
+	private static double leftDistance = 0;
+	private static double rightDistance = 0;
+	private static int leftNegate = 1;
+	private static int rightNegate = 1;
+	
 
 	/**
 	 * Default constructor
@@ -43,29 +48,34 @@ public class DriveBase {
 	 *            motors}
 	 */
 	public DriveBase(boolean brakeMode) {
-		this.rearleft = new CANTalon(MotorMap.REAR_LEFT);
-		this.frontleft = new CANTalon(MotorMap.FRONT_LEFT);
-		this.rearright = new CANTalon(MotorMap.REAR_RIGHT);
-		this.frontright = new CANTalon(MotorMap.FRONT_RIGHT);
+		rearleft = new CANTalon(MotorMap.REAR_LEFT);
+		frontleft = new CANTalon(MotorMap.FRONT_LEFT);
+		rearright = new CANTalon(MotorMap.REAR_RIGHT);
+		frontright = new CANTalon(MotorMap.FRONT_RIGHT);
 
-		this.rearleft.enable();
-		this.frontleft.enable();
-		this.rearright.enable();
-		this.frontright.enable();
+		rearleft.enable();
+		frontleft.enable();
+		rearright.enable();
+		frontright.enable();
+
+		rearright.setInverted(true);
+
+		rearleft.clearStickyFaults();
+		frontleft.clearStickyFaults();
+		rearright.clearStickyFaults();
+		frontright.clearStickyFaults();
+
+		rearleft.enableBrakeMode(brakeMode);
+		frontleft.enableBrakeMode(brakeMode);
+		frontright.enableBrakeMode(brakeMode);
+		rearright.enableBrakeMode(brakeMode);
+
+		drive = new RobotDrive(frontleft, rearleft, frontright, rearright);
 		
-		this.rearright.setInverted(true);
-
-		this.rearleft.clearStickyFaults();
-		this.frontleft.clearStickyFaults();
-		this.rearright.clearStickyFaults();
-		this.frontright.clearStickyFaults();
-
-		this.rearleft.enableBrakeMode(brakeMode);
-		this.frontleft.enableBrakeMode(brakeMode);
-		this.frontright.enableBrakeMode(brakeMode);
-		this.rearright.enableBrakeMode(brakeMode);
-
-		this.drive = new RobotDrive(this.frontleft, this.rearleft, this.frontright, this.rearright);
+		killThread = new KillerThread();
+		try {
+			killThread.wait();
+		} catch (InterruptedException e) {e.printStackTrace();}		
 	}
 
 	/**
@@ -80,35 +90,34 @@ public class DriveBase {
 	 *            center, and 1 is the highest.
 	 */
 	public void drive(double left, double right) {
-			Robot.table.putNumber("LEFT-DRIVE", left);
-			Robot.table.putNumber("RIGHT-DRIVE", right);
-			drive.tankDrive(left, right);
+
+		Robot.table.putNumber("LEFT-DRIVE", left);
+		Robot.table.putNumber("RIGHT-DRIVE", right);
+		drive.tankDrive(left, right);
 	}
 
 	public void driveForSeconds(double LeftSpeed, double RightSpeed, double seconds) {
 		double refresh = 0.005;
-		double loops = seconds/refresh;
-		for(int amount = 0; amount < loops; amount++) {
+		double loops = seconds / refresh;
+		for (int amount = 0; amount < loops; amount++) {
 			this.drive(LeftSpeed, RightSpeed);
 			Timer.delay(refresh);
 		}
 		this.drive(0, 0);
 	}
-	
+
 	/**
 	 * Automagically drives straight
 	 */
-	@SuppressWarnings("deprecation")
 	public void auto_driveStraight(double distance, double speed, double curve, long timeout) { // Why
 		Robot.encoder.resetDrive();
 
 		double left = 0;
 		double right = 0;
-		killThread = new KillerThread();
 		killThread.setKillTime(timeout);
-		killThread.start();
+		killThread.notifyAll();
 
-		while((((left = Robot.encoder.LeftDistance()) < distance)
+		while ((((left = Robot.encoder.LeftDistance()) < distance)
 				&& ((right = Robot.encoder.RightDistance()) < distance)) && !killThread.getKilled()) {
 			if (left < (right - 0.01)) {
 				this.drive((speed + curve + .06), (speed - curve));
@@ -119,24 +128,22 @@ public class DriveBase {
 			}
 		}
 		this.drive(0, 0);
-		killThread.stopKiller();
-		killThread.destroy();
+		try {
+			killThread.wait();
+		} catch (InterruptedException e) {}
 	}
 
-	@SuppressWarnings("deprecation")
-	public void auto_driveStraightNoCorrection(double distance, double speed, double curve, long timeout) { 
+	public void auto_driveStraightNoCorrection(double distance, double speed, double curve, long timeout) {
 		Robot.encoder.resetDrive();
-		
-		killThread = new KillerThread();
 		killThread.setKillTime(timeout);
-		killThread.start();
-		
-		while((((Robot.encoder.LeftDistance()) < distance) && ((Robot.encoder.RightDistance()) < distance)) && !killThread.getKilled()) {
+		killThread.notify();
+
+		while ((((Robot.encoder.LeftDistance()) < distance) && ((Robot.encoder.RightDistance()) < distance))
+				&& !killThread.getKilled()) {
 			this.drive(speed, speed);
 		}
 		this.drive(0, 0);
-		killThread.stopKiller();
-		killThread.destroy();
+		try {killThread.wait();} catch (InterruptedException e) {e.printStackTrace();}
 	}
 
 	/**
@@ -153,12 +160,7 @@ public class DriveBase {
 	 */
 	public void auto_driveTurn(double degrees, double speed, double curve) {
 		Robot.encoder.resetDrive();
-		double left = 0;
-		double right = 0;
-		double leftDistance = 0;
-		double rightDistance = 0;
-		int leftNegate = 1;
-		int rightNegate = 1;
+	
 		// We aren't doing straight in this function are we? How am I going to
 		// find distance from just degrees (which is 0).
 		if (degrees != 0) { // This is to make sure that even if build team
@@ -180,7 +182,7 @@ public class DriveBase {
 																					// to
 																					// be
 																					// positive
-				//SmartDashboard.putString("turnLeft", "YES");
+				// SmartDashboard.putString("turnLeft", "YES");
 				leftNegate = -1;
 			} else {
 				leftDistance = ((1.0 / 2.0) * degrees) * robotWidth / (360.0); // Negating
@@ -191,12 +193,12 @@ public class DriveBase {
 																				// go
 																				// backward.
 				rightDistance = ((1.0 / 2.0) * degrees) * robotWidth / (360.0);
-				//SmartDashboard.putString("turnLeft", "NO");
+				// SmartDashboard.putString("turnLeft", "NO");
 				rightNegate = -1;
 			}
-			//SmartDashboard.putNumber("Robot width", robotWidth);
-			//SmartDashboard.putNumber("leftTurnDistance", leftDistance);
-			//SmartDashboard.putNumber("rightTurnDistance", rightDistance);
+			// SmartDashboard.putNumber("Robot width", robotWidth);
+			// SmartDashboard.putNumber("leftTurnDistance", leftDistance);
+			// SmartDashboard.putNumber("rightTurnDistance", rightDistance);
 			// Lets just do copy and paste here, shall we? You don't mind -
 			// right, David?
 			while (((left = Robot.encoder.LeftDistance()) < leftDistance * leftNegate)
@@ -208,8 +210,10 @@ public class DriveBase {
 				} else {
 					this.drive((speed) * leftNegate, (speed) * rightNegate);
 				}
-				//SmartDashboard.putNumber("leftEncoderDistance", Robot.encoder.LeftDistance());
-				//SmartDashboard.putNumber("rightEncoderDistance", Robot.encoder.RightDistance());
+				// SmartDashboard.putNumber("leftEncoderDistance",
+				// Robot.encoder.LeftDistance());
+				// SmartDashboard.putNumber("rightEncoderDistance",
+				// Robot.encoder.RightDistance());
 			}
 			this.drive(0, 0);
 		}
@@ -222,7 +226,7 @@ public class DriveBase {
 	 * also allow smaller more precise movements
 	 */
 	private double exp(double Speed) {
-		return (double) Math.pow(Speed, 1.8);
+		return Speed;// (double) Math.pow(Speed, 1.8);
 	}
 
 	public boolean checkState() {
@@ -236,16 +240,6 @@ public class DriveBase {
 	 *            Current operator interface.
 	 */
 	public void checkInput(OI map) {
-		final boolean triggered = Robot.oi.getDriveController().getPOV()>=90;
-		if ((triggered ? 0 : 1) > pastjoshdrive) {
-			if (joshdrive>0) {
-				joshdrive=0;
-			} else {
-				joshdrive=1;
-			}
-		}
-		pastjoshdrive= triggered ? 0 : 1;
-	
 		this.drive(-exp(map.getDriveLeftYAxis()), -exp(map.getDriveRightYAxis()));
 
 	}

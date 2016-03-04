@@ -17,7 +17,7 @@ public class DashboardThread extends Thread{
 				Robot.table.putNumber("FLY-LEFT", Robot.encoder.leftFlyRPM());
 				Robot.table.putNumber("FLY-RIGHT", Robot.encoder.rightFlyRPM());
 				Robot.table.putNumber("DISTANCE-DRIVE", (Robot.encoder.LeftDistance() + Robot.encoder.RightDistance())/2);
-				Thread.sleep(120);
+				Thread.sleep(200);
 			} catch (InterruptedException e) {}
 		}
 	}

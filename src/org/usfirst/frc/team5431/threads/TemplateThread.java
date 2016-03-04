@@ -10,25 +10,14 @@ public abstract class TemplateThread extends Thread{
 
 	@Override
 	public void run() {
-		// set the values inside the input boxes to the correct one.
-		// otherwise, it will raise errors
-		boolean init = false;
-		long lastTime = System.nanoTime();
-		double ns = 1000000000 / tps;// 10 times per second
-		// checks immediately for connection
-		double delta = 1;
+		try{
+		init();
 		while (true) {
-			long now = System.nanoTime();
-			delta += (now - lastTime) / ns;
-			lastTime = now;
-			if (delta >= 1) {
-				if (!init) {
-					init();
-					init = true;
-				}
-				action();
-				delta--;
-			}
+			sleep((long)(1000000000 /tps));
+			action();
+		}
+		}catch(Throwable t){
+			t.printStackTrace();
 		}
 	}
 	

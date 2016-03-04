@@ -17,55 +17,57 @@ public class AutonThread extends Thread {
 	}
 	
 	private boolean driverAuto(double nums[]) {
-		boolean pass = false;
 		
-		if (nums[2] == 1) {
-			ThreadManager.Drive(-0.48, -0.48);
-
-		} else if(nums[2] == 2) {
-			ThreadManager.Drive(0.48, 0.48);
-
-		} else if(nums[1] == 1) {
-			ThreadManager.Drive(-0.45, 0.45);
-
-		} else if(nums[1] == 2) {
-			ThreadManager.Drive(0.45, -0.45);
-
-		} else if(nums[1] == 5){
-			ThreadManager.Drive(0, 0);
-
-		} else {
-			ThreadManager.Drive(0, 0);
-			pass = true;
-		}
+//		if (nums[2] == 1) {
+//			ThreadManager.Drive(-0.48, -0.48);
+//
+//		} else if(nums[2] == 2) {
+//			ThreadManager.Drive(0.48, 0.48);
+//
+//		} else if(nums[1] == 1) {
+//			ThreadManager.Drive(-0.45, 0.45);
+//
+//		} else if(nums[1] == 2) {
+//			ThreadManager.Drive(0.45, -0.45);
+//
+//		} else if(nums[1] == 5){
+//			ThreadManager.Drive(0, 0);
+//
+//		} else {
+//			ThreadManager.Drive(0, 0);
+//			return true;
+//		}
 		
-		return pass;
+		return false;
 	}
 	
 	private void driverGun(double nums[]) {
 		if(nums[1] != 5){
 			Robot.table.putNumber("AUTO-AIM-SPEED", nums[0]);
-			ThreadManager.Shoot(nums[0]);
+			Robot.turret.setMotorSpeed(nums[0]);
+			Robot.turret.shoot(false);
 		}
 	}
 	
 	public void lowbarMode() {
 		// Drive 15 feet
-		Robot.encoder.resetDrive();
-		ThreadManager.DriveForSeconds(0.0, 0.0, 0.01);
-		ThreadManager.Drive_Straight(155, 0.6, 0.05, 15);
-		ThreadManager.Drive(-0.4, -0.4);
-		Timer.delay(1);
-		ThreadManager.DriveForSeconds(0.62, 0, .3);
-		Robot.encoder.resetDrive();
-		ThreadManager.Drive_Straight(35, 0.5, 0.05, 2);
-		Timer.delay(0.25);
-		this.shoot();
+//		Robot.encoder.resetDrive();
+//		ThreadManager.DriveForSeconds(0.0, 0.0, 0.01);
+//		Robot.encoder.resetDrive();
+//		ThreadManager.Drive_Straight(155, 0.6, 0.05, 15);
+//		ThreadManager.Drive(-0.4, -0.4);
+//		Timer.delay(1);
+//		ThreadManager.DriveForSeconds(0.62, 0, .3);
+//		Robot.encoder.resetDrive();
+//		ThreadManager.Drive_Straight(35, 0.5, 0.05, 2);
+//		Timer.delay(0.25);
+//		this.shoot();
 	}
 	
 	private void onKillAuton() {
-		ThreadManager.stopIntake();
-		ThreadManager.stopShoot();
+		Robot.intake.stopIntake();
+		Robot.turret.stopShoot();
+		Robot.turret.shoot(false);
 	}
 	
 	private void shoot() {
@@ -84,7 +86,8 @@ public class AutonThread extends Thread {
 					this.driverAuto(VisionThread.manVals);
 					for(int a = 0; a < 310; a++) {
 						if(!autoRun) {this.onKillAuton(); return;}
-						ThreadManager.startIntake();
+						Robot.intake.intakeMax();
+						Robot.intake.intake();
 						Timer.delay(0.005);
 					}
 					this.onKillAuton();

@@ -5,12 +5,12 @@ import org.usfirst.frc.team5431.robot.Robot;
 public class KillerThread extends Thread {
 	
 	public volatile boolean killed = false;
-	private long time = 0;
-	private boolean RPM = false;
-	private double minRPM = 230;
+	private static long time = 0;
+	private static boolean RPM = false;
+	private static double minRPM = 230;
 	
 	public KillerThread() {
-		this.time = 0;
+		time = 0;
 		killed = false;
 	}
 	
@@ -38,9 +38,8 @@ public class KillerThread extends Thread {
 			do {
 				Thread.sleep(time);
 				if(RPM && ((Robot.encoder.rightFlyRPM() < minRPM) || (Robot.encoder.leftFlyRPM() < minRPM))) {
-					killed = true;
-					TurretThread.turret.stopShoot();
-					TurretThread.turret.shoot();
+					killed = false;
+					//ThreadManager.stopShoot();
 				} 
 			} while(RPM);
 		} catch (InterruptedException e) {
