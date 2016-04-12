@@ -83,9 +83,7 @@ public class DriveBase {
 		drive = new RobotDrive(frontleft, rearleft, frontright, rearright);
 		
 		killThread = new KillerThread();
-		try {
-			killThread.wait();
-		} catch (InterruptedException e) {e.printStackTrace();}		
+			
 	}
 
 	/**
